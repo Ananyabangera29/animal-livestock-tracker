@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Animal</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 50px auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            width: 95%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button,
+        a {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+        }
+
+        a {
+            background-color: #777;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="card">
+
+            <h1>✏️ Edit Animal</h1>
+
+            <form
+                action="/animals/edit/{{ animal.id }}"
+                method="POST"
+            >
+
+                <input
+                    type="text"
+                    name="animal_type"
+                    value="{{ animal.animal_type }}"
+                    placeholder="Animal Type"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="breed"
+                    value="{{ animal.breed }}"
+                    placeholder="Breed"
+                    required
+                >
+
+                <input
+                    type="number"
+                    name="age"
+                    value="{{ animal.age }}"
+                    placeholder="Age"
+                    required
+                >
+
+                <input
+                    type="number"
+                    name="quantity"
+                    value="{{ animal.quantity }}"
+                    placeholder="Quantity"
+                    required
+                >
+
+                <button type="submit">
+                    Update Animal
+                </button>
+
+                <a href="/animals">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

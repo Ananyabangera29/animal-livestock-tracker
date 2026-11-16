@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Expense</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 50px auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 95%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button,
+        a {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+        }
+
+        a {
+            background-color: #777;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        a:hover {
+            background-color: #555;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>✏️ Edit Expense</h1>
+
+        <form action="/expenses/edit/{{ expense.id }}" method="POST">
+
+            <label>Category</label>
+
+            <input
+                type="text"
+                name="category"
+                value="{{ expense.category }}"
+                required
+            >
+
+            <label>Amount</label>
+
+            <input
+                type="number"
+                name="amount"
+                value="{{ expense.amount }}"
+                step="0.01"
+                required
+            >
+
+            <label>Date</label>
+
+            <input
+                type="date"
+                name="date"
+                value="{{ expense.date }}"
+                required
+            >
+
+            <label>Description</label>
+
+            <input
+                type="text"
+                name="description"
+                value="{{ expense.description or '' }}"
+            >
+
+            <br>
+
+            <button type="submit">
+                Update Expense
+            </button>
+
+            <a href="/expenses">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

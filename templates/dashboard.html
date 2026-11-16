@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Animal Livestock Tracker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <header>
+        <h1>🐄 Animal Livestock Tracker</h1>
+        <h2>Dashboard</h2>
+    </header>
+
+    <nav class="nav-links">
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+        <a href="{{ url_for('animals') }}">🐄 Animals</a>
+        <a href="{{ url_for('income') }}">💰 Income</a>
+        <a href="{{ url_for('expenses') }}">💸 Expenses</a>
+        <a href="{{ url_for('reports') }}">📊 Reports</a>
+    </nav>
+
+    <!-- DASHBOARD CARDS -->
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Animals</h3>
+            <p>{{ total_animals }}</p>
+        </div>
+
+
+        <div class="card">
+            <h3>Total Income</h3>
+            <p>₹{{ "%.2f"|format(total_income) }}</p>
+        </div>
+
+
+        <div class="card">
+            <h3>Total Expenses</h3>
+            <p>₹{{ "%.2f"|format(total_expenses) }}</p>
+        </div>
+
+
+        <div class="card">
+            <h3>Net Profit/Loss</h3>
+
+            {% if net_profit >= 0 %}
+                <p>₹{{ "%.2f"|format(net_profit) }}</p>
+            {% else %}
+                <p>−₹{{ "%.2f"|format(net_profit|abs) }}</p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- MONTHLY SUMMARY -->
+    <section class="summary">
+
+        <h2>Monthly Summary</h2>
+
+        <div class="chart-container">
+
+            <canvas id="incomeExpenseChart"></canvas>
+
+        </div>
+
+    </section>
+
+
+    <!-- HIDDEN MONTHLY INCOME DATA -->
+    <div id="income-data" style="display:none;">
+
+        {% for item in monthly_income %}
+
+        <span
+            class="income-item"
+            data-month="{{ item['month'] }}"
+            data-amount="{{ item['total'] }}">
+        </span>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- HIDDEN MONTHLY EXPENSE DATA -->
+    <div id="expense-data" style="display:none;">
+
+        {% for item in monthly_expenses %}
+
+        <span
+            class="expense-item"
+            data-month="{{ item['month'] }}"
+            data-amount="{{ item['total'] }}">
+        </span>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- MONTHLY TABLE -->
+    <section class="summary">
+
+        <h2>Monthly Income & Expenses</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Month</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
+                    <th>Profit/Loss</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in monthly_summary %}
+
+                <tr>
+
+                    <td>
+                        {{ item["month"] }}
+                    </td>
+
+                    <td>
+                        ₹{{ "%.2f"|format(item["income"]) }}
+                    </td>
+
+                    <td>
+                        ₹{{ "%.2f"|format(item["expenses"]) }}
+                    </td>
+
+                    <td>
+                        ₹{{ "%.2f"|format(item["profit"]) }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+                {% if monthly_summary|length == 0 %}
+
+                <tr>
+
+                    <td colspan="4">
+                        No monthly data available.
+                    </td>
+
+                </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+
+    <!-- REPORTS -->
+    <section class="reports">
+
+        <h2>Reports</h2>
+
+        <div class="report-box">
+
+            <div>
+                <h3>🐄 Animal Records</h3>
+
+                <p>
+                    View and manage livestock records.
+                </p>
+            </div>
+
+
+            <div>
+                <h3>💰 Income Records</h3>
+
+                <p>
+                    Track income generated from livestock.
+                </p>
+            </div>
+
+
+            <div>
+                <h3>💸 Expense Records</h3>
+
+                <p>
+                    Track livestock-related expenses.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            Animal Livestock Expense and Income Tracker
+        </p>
+
+    </footer>
+
+</div>
+
+
+<!-- CHART JAVASCRIPT -->
+
+<script>
+
+    // Get income elements
+    const incomeItems =
+        document.querySelectorAll(".income-item");
+
+
+    // Get expense elements
+    const expenseItems =
+        document.querySelectorAll(".expense-item");
+
+
+    // Store monthly data
+    const income = {};
+    const expenses = {};
+
+
+    // Read income data
+    incomeItems.forEach(function(item) {
+
+        const month =
+            item.getAttribute("data-month");
+
+        const amount =
+            parseFloat(item.getAttribute("data-amount")) || 0;
+
+        income[month] = amount;
+
+    });
+
+
+    // Read expense data
+    expenseItems.forEach(function(item) {
+
+        const month =
+            item.getAttribute("data-month");
+
+        const amount =
+            parseFloat(item.getAttribute("data-amount")) || 0;
+
+        expenses[month] = amount;
+
+    });
+
+
+    // Combine all months
+    const months =
+        [...new Set([
+            ...Object.keys(income),
+            ...Object.keys(expenses)
+        ])];
+
+
+    // Create chart values
+    const incomeValues =
+        months.map(function(month) {
+
+            return income[month] || 0;
+
+        });
+
+
+    const expenseValues =
+        months.map(function(month) {
+
+            return expenses[month] || 0;
+
+        });
+
+
+    // Get chart canvas
+    const chartCanvas =
+        document.getElementById("incomeExpenseChart");
+
+
+    // Create chart
+    new Chart(chartCanvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: months,
+
+            datasets: [
+
+                {
+                    label: "Income",
+
+                    data: incomeValues,
+
+                    borderWidth: 1
+                },
+
+
+                {
+                    label: "Expenses",
+
+                    data: expenseValues,
+
+                    borderWidth: 1
+                }
+
+            ]
+
+        },
+
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+                    display: true
+                },
+
+                title: {
+
+                    display: true,
+
+                    text: "Monthly Income vs Expenses"
+
+                }
+
+            },
+
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    title: {
+
+                        display: true,
+
+                        text: "Amount (₹)"
+
+                    }
+
+                },
+
+
+                x: {
+
+                    title: {
+
+                        display: true,
+
+                        text: "Month"
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+
+</body>
+
+</html>

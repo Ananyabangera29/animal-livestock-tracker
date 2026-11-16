@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livestock Reports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🐄 Animal Livestock Tracker</h1>
+        <h2>Reports</h2>
+    </header>
+
+    <nav class="nav-links">
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+        <a href="{{ url_for('animals') }}">🐄 Animals</a>
+        <a href="{{ url_for('income') }}">💰 Income</a>
+        <a href="{{ url_for('expenses') }}">💸 Expenses</a>
+        <a href="{{ url_for('reports') }}">📊 Reports</a>
+    </nav>
+
+    <section class="cards report-cards">
+        <div class="card"><h3>Total Income</h3><p>₹{{ "%.2f"|format(total_income) }}</p></div>
+        <div class="card"><h3>Total Expenses</h3><p>₹{{ "%.2f"|format(total_expenses) }}</p></div>
+        <div class="card"><h3>Net Profit/Loss</h3><p class="{% if net_profit < 0 %}loss{% else %}profit{% endif %}">₹{{ "%.2f"|format(net_profit) }}</p></div>
+    </section>
+
+    <section class="summary">
+        <h2>Monthly Income and Expense Report</h2>
+        <div class="chart-container"><canvas id="monthlyReportChart"></canvas></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Profit / Loss</th></tr></thead>
+                <tbody>
+                {% for report in monthly_reports %}
+                    <tr>
+                        <td>{{ report.month }}</td>
+                        <td>₹{{ "%.2f"|format(report.income) }}</td>
+                        <td>₹{{ "%.2f"|format(report.expenses) }}</td>
+                        <td class="{% if report.profit_loss < 0 %}loss{% else %}profit{% endif %}">₹{{ "%.2f"|format(report.profit_loss) }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4">No income or expense records available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="category-grid">
+        <div class="summary">
+            <h2>Income by Category</h2>
+            <div class="chart-container"><canvas id="incomeCategoryChart"></canvas></div>
+            <div class="table-wrap">
+                <table><thead><tr><th>Category</th><th>Total Income</th></tr></thead><tbody>
+                {% for item in income_categories %}<tr><td>{{ item.category }}</td><td>₹{{ "%.2f"|format(item.total) }}</td></tr>
+                {% else %}<tr><td colspan="2">No income categories available.</td></tr>{% endfor %}
+                </tbody></table>
+            </div>
+        </div>
+        <div class="summary">
+            <h2>Expenses by Category</h2>
+            <div class="chart-container"><canvas id="expenseCategoryChart"></canvas></div>
+            <div class="table-wrap">
+                <table><thead><tr><th>Category</th><th>Total Expenses</th></tr></thead><tbody>
+                {% for item in expense_categories %}<tr><td>{{ item.category }}</td><td>₹{{ "%.2f"|format(item.total) }}</td></tr>
+                {% else %}<tr><td colspan="2">No expense categories available.</td></tr>{% endfor %}
+                </tbody></table>
+            </div>
+        </div>
+    </section>
+    <footer><p>Animal Livestock Expense and Income Tracker</p></footer>
+</div>
+
+<div id="monthly-data" hidden>
+    {% for item in monthly_reports %}<span class="monthly-item" data-month="{{ item.month }}" data-income="{{ item.income }}" data-expenses="{{ item.expenses }}"></span>{% endfor %}
+</div>
+<div id="income-category-data" hidden>
+    {% for item in income_categories %}<span class="category-item" data-label="{{ item.category }}" data-value="{{ item.total }}"></span>{% endfor %}
+</div>
+<div id="expense-category-data" hidden>
+    {% for item in expense_categories %}<span class="category-item" data-label="{{ item.category }}" data-value="{{ item.total }}"></span>{% endfor %}
+</div>
+<script>
+    const monthlyItems = [...document.querySelectorAll('.monthly-item')];
+    const months = monthlyItems.map(item => item.dataset.month);
+    const monthlyIncome = monthlyItems.map(item => Number(item.dataset.income) || 0);
+    const monthlyExpenses = monthlyItems.map(item => Number(item.dataset.expenses) || 0);
+
+    new Chart(document.getElementById('monthlyReportChart'), {
+        type: 'bar',
+        data: { labels: months, datasets: [
+            { label: 'Income', data: monthlyIncome },
+            { label: 'Expenses', data: monthlyExpenses }
+        ]},
+        options: { responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    function createCategoryChart(canvasId, containerId) {
+        const items = [...document.querySelectorAll(`#${containerId} .category-item`)];
+        new Chart(document.getElementById(canvasId), {
+            type: 'doughnut',
+            data: { labels: items.map(item => item.dataset.label),
+                datasets: [{ data: items.map(item => Number(item.dataset.value) || 0) }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+    createCategoryChart('incomeCategoryChart', 'income-category-data');
+    createCategoryChart('expenseCategoryChart', 'expense-category-data');
+</script>
+</body>
+</html>
