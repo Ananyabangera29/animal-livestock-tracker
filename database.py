@@ -1,20 +1,26 @@
+
 import os
 import sqlite3
 
-# Always use the one shared database stored beside this file.
+# Use Render's persistent database path when configured.
+# Otherwise, use the existing local database.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE = os.path.join(BASE_DIR, "livestock.db")
+
+DATABASE = os.environ.get(
+    "DATABASE_PATH",
+    os.path.join(BASE_DIR, "livestock.db")
+)
 
 
 def get_db_connection():
-    """Return a connection to the common livestock database."""
+    """Return a connection to the shared livestock database."""
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
     return connection
 
 
 def create_tables():
-    """Create the three agreed tables if they do not already exist."""
+    """Create tables only if they do not already exist."""
     connection = get_db_connection()
 
     connection.execute("""
@@ -53,4 +59,4 @@ def create_tables():
 
 if __name__ == "__main__":
     create_tables()
-    print("livestock.db and the shared tables are ready!")
+    print("Livestock database and tables are ready!")

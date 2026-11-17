@@ -6,3 +6,10 @@ __pycache__/
 .env.*
 !.env.example
 instance/
+
+# Local safety backups
+app-before-deployment.py
+database-before-deployment.py
+
+# Extra local template folder
+templates/static/
